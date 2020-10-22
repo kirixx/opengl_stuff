@@ -2,8 +2,44 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include <string>
+#include <fstream>
+#include <sstream>
 
 void error_callback(int error, const char* msg);
+
+struct ShaderProgramSource
+{
+    std::string VertexShader;
+    std::string FragmentShader;
+};
+
+static ShaderProgramSource ParseShader(const std::string& filePath)
+{
+    std::ifstream stream(filePath);
+    
+    std::string line;
+    std::stringstream ss[2];
+    enum class ShaderType
+    {
+        NONE = -1, VERTEX = 0, FRAGMENT =1
+    };
+    ShaderType type = ShaderType::NONE;
+    while(getline(stream, line))
+    {
+        if (line.find("#shader") != std::string::npos)
+        {
+            if (line.find("vertex") != std::string::npos)
+                type = ShaderType::VERTEX;
+            else if(line.find("fragment") != std::string::npos)
+                type = ShaderType::FRAGMENT;
+        }
+        else
+        {
+            ss[(int)type] << line << '\n';
+        }
+    }
+    return {ss[0].str(), ss[1].str()};
+}
 
 static uint32_t CompileShader(uint32_t type, const std::string& source)
 {
@@ -89,26 +125,8 @@ int main()
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 2, 0);
 
-    std::string vertexShader = 
-        "#version 330 core\n"
-        "\n"
-        "layout(location = 0) in vec4 position;\n"
-        "\n"
-        "void main()\n"
-        "{\n"
-        "   gl_Position = position;\n"
-        "}\n";
-
-    std::string fragmentShader =
-        "#version 330 core\n"
-        "\n"
-        "layout(location = 0) out vec4 color;\n"
-        "\n"
-        "void main()\n"
-        "{\n"
-        "   color = vec4(1.0, 0.0, 0.0, 1.0);\n"
-        "}\n";
-    uint32_t shader = CreateShader(vertexShader, fragmentShader);
+    ShaderProgramSource source = ParseShader("res/Shaders/Basic.shader");
+    uint32_t shader = CreateShader(source.VertexShader, source.FragmentShader);
     glUseProgram(shader);
 
     /* Loop until the user closes the window */
