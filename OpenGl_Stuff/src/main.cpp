@@ -107,17 +107,16 @@ static int32_t CreateShader(const std::string& vertexShader, const std::string& 
 int main()
 {
     glfwSetErrorCallback(error_callback);
-
-    int major, minor, revision;
-    glfwGetVersion(&major, &minor, &revision);
-    std::printf("Running against GLFW %i.%i.%i\n", major, minor, revision);
-
     GLFWwindow* window;
     /* Initialize the library */
     if (!glfwInit())
     {
         return -1;
     }
+
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
     /* Create a windowed mode window and its OpenGl Context */
     window = glfwCreateWindow(640, 480, "Hello World", nullptr, nullptr);
@@ -136,6 +135,8 @@ int main()
     if (glewInit() != GLEW_OK)
         std::cout << "GLEW Error" << std::endl;
 
+    std::cout << glGetString(GL_VERSION) << std::endl;
+
     float positions[] = {
         -0.5f, -0.5f, //0 
          0.5f, -0.5f, //1
@@ -146,10 +147,15 @@ int main()
     uint32_t indices[] = {0, 1, 2,
                           2, 3, 0};
 
+    uint32_t vao;
+    GLCall(glGenVertexArrays(1, &vao));
+    GLCall(glBindVertexArray(vao));
+
     uint32_t buffer;
     GLCall(glGenBuffers(1, &buffer));
     GLCall(glBindBuffer(GL_ARRAY_BUFFER, buffer));
-    GLCall(glBufferData(GL_ARRAY_BUFFER, 6 * 2 * sizeof(float), positions, GL_STATIC_DRAW));
+    GLCall(glBufferData(GL_ARRAY_BUFFER, 4 * 2 * sizeof(float), positions, GL_STATIC_DRAW));
+    
     uint32_t ibo;
     GLCall(glGenBuffers(1, &ibo));
     GLCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo));
@@ -166,6 +172,11 @@ int main()
     ASSERT(location != -1);
     GLCall(glUniform4f(location, 0.2f, 0.3f, 0.8f, 1.0f));
 
+    GLCall(glBindVertexArray(0));
+    GLCall(glUseProgram(0));
+    GLCall(glBindBuffer(GL_ARRAY_BUFFER, 0));
+    GLCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
+
     float r = 0.0f;
     float increment = 0.5f;
     /* Loop until the user closes the window */
@@ -173,7 +184,14 @@ int main()
     {
         /* Render Here*/
         GLCall(glClear(GL_COLOR_BUFFER_BIT));
+
+        GLCall(glUseProgram(shader))
+
         GLCall(glUniform4f(location, r, 0.3f, 0.8f, 1.0f));
+
+        GLCall(glBindVertexArray(vao));
+        GLCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo));
+
         GLCall(glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr));
 
         if (r > 1.0f)
