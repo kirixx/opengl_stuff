@@ -1,5 +1,5 @@
 #pragma once
-#include "Renderer.h"
+#include "ErrorHandler.h"
 class VertexBuffer
 {
 public:
