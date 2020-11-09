@@ -1,6 +1,7 @@
 #include <string>
 #include "Renderer.h"
 #include <GLFW/glfw3.h>
+#include "Texture.h"
 
 void error_callback(int error, const char* msg);
 
@@ -36,18 +37,22 @@ int main()
     std::cout << glGetString(GL_VERSION) << std::endl;
     {
         float positions[] = {
-            -0.5f, -0.5f, //0 
-             0.5f, -0.5f, //1
-             0.5f,  0.5f, //2
-            -0.5f,  0.5f, //3
+            -0.5f, -0.5f, 0.0f, 0.0f,//0 
+             0.5f, -0.5f, 1.0f, 0.0f,//1
+             0.5f,  0.5f, 1.0f, 1.0f,//2
+            -0.5f,  0.5f, 0.0f, 1.0f//3
         };
 
         uint32_t indices[] = { 0, 1, 2,
                               2, 3, 0 };
+
+        GLCall(glEnable(GL_BLEND));
+        GLCall(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
  
         VertexArray va;
-        VertexBuffer vb(positions, 4 * 2 * sizeof(float));
+        VertexBuffer vb(positions, 4 * 4 * sizeof(float));
         VertexBufferLayout layout;
+        layout.Push<float>(2);
         layout.Push<float>(2);
         va.AddBuffer(vb, layout);
 
@@ -56,6 +61,10 @@ int main()
         Shader shader("res/Shaders/Basic.shader");
         shader.Bind();
         shader.SetUniform4f("u_Color", 0.8f, 0.3f, 0.8f, 1.0f);
+
+        Texture texture("res/textures/Bats.png");
+        texture.Bind();
+        shader.SetUniform1i("u_Texture", 0);
         
         va.Unbind();
         vb.Unbind();
