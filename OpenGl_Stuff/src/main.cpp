@@ -3,6 +3,8 @@
 #include <GLFW/glfw3.h>
 #include "Texture.h"
 
+#include "glm/gtc/matrix_transform.hpp"
+
 void error_callback(int error, const char* msg);
 
 int main()
@@ -58,9 +60,12 @@ int main()
 
         IndexBuffer ib(indices, 6);
 
+        glm::mat4 projection = glm::ortho(-2.0f, 2.0f, -1.5f, 1.5f, -1.0f, 1.0f); //4:3
+
         Shader shader("res/Shaders/Basic.shader");
         shader.Bind();
         shader.SetUniform4f("u_Color", 0.8f, 0.3f, 0.8f, 1.0f);
+        shader.SetUniformMatrix4f("u_MVP", projection);
 
         Texture texture("res/textures/Bats.png");
         texture.Bind();
