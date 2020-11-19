@@ -61,11 +61,15 @@ int main()
         IndexBuffer ib(indices, 6);
 
         glm::mat4 projection = glm::ortho(-2.0f, 2.0f, -1.5f, 1.5f, -1.0f, 1.0f); //4:3
+        glm::mat4 view = glm::translate(glm::mat4(1.0f), glm::vec3(-1.0f, 0, 0));
+        glm::mat4 model = glm::translate(glm::mat4(1.0f), glm::vec3(0.8f, 0.8f, 0));
+
+        glm::mat4 mvp = projection * view *  model;
 
         Shader shader("res/Shaders/Basic.shader");
         shader.Bind();
         shader.SetUniform4f("u_Color", 0.8f, 0.3f, 0.8f, 1.0f);
-        shader.SetUniformMatrix4f("u_MVP", projection);
+        shader.SetUniformMatrix4f("u_MVP", mvp);
 
         Texture texture("res/textures/Bats.png");
         texture.Bind();
