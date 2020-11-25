@@ -26,7 +26,7 @@ int main()
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
     /* Create a windowed mode window and its OpenGl Context */
-    window = glfwCreateWindow(640, 480, "Hello World", nullptr, nullptr);
+    window = glfwCreateWindow(960, 540, "Hello World", nullptr, nullptr);
     if (!window)
     {
         glfwTerminate();
@@ -35,7 +35,7 @@ int main()
 
     /* Make the window's context current */
     glfwMakeContextCurrent(window);
-    glfwSwapInterval(10);
+    glfwSwapInterval(1);
 
     if (glewInit() != GLEW_OK)
         std::cout << "GLEW Error" << std::endl;
@@ -43,10 +43,10 @@ int main()
     std::cout << glGetString(GL_VERSION) << std::endl;
     {
         float positions[] = {
-            -0.5f, -0.5f, 0.0f, 0.0f,//0 
-             0.5f, -0.5f, 1.0f, 0.0f,//1
-             0.5f,  0.5f, 1.0f, 1.0f,//2
-            -0.5f,  0.5f, 0.0f, 1.0f//3
+            -50.0f, -50.0f, 0.0f, 0.0f,//0 
+             50.0f, -50.0f, 1.0f, 0.0f,//1
+             50.0f,  50.0f, 1.0f, 1.0f,//2
+            -50.0f,  50.0f, 0.0f, 1.0f//3
         };
 
         uint32_t indices[] = { 0, 1, 2,
@@ -64,8 +64,8 @@ int main()
 
         IndexBuffer ib(indices, 6);
 
-        glm::mat4 projection = glm::ortho(-2.0f, 2.0f, -1.5f, 1.5f, -1.0f, 1.0f); //4:3
-        glm::mat4 view = glm::translate(glm::mat4(1.0f), glm::vec3(-1.0f, 0, 0));
+        glm::mat4 projection = glm::ortho(0.0f, 960.0f, 0.0f, 540.0f, -1.0f, 1.0f); //4:3
+        glm::mat4 view = glm::translate(glm::mat4(1.0f), glm::vec3(0, 0, 0));
 
         Shader shader("res/Shaders/Basic.shader");
         shader.Bind();
@@ -87,7 +87,8 @@ int main()
         ImGui_ImplOpenGL3_Init("#version 130");
         ImGui::StyleColorsDark();
                 
-        glm::vec3 translation(0.8f, 0.8f, 0);
+        glm::vec3 translationA(200, 200, 0);
+        glm::vec3 translationB(400, 200, 0);
 
         float r = 0.0f;
         float increment = 0.5f;
@@ -101,17 +102,25 @@ int main()
             ImGui_ImplOpenGL3_NewFrame();
             ImGui_ImplGlfw_NewFrame();
             ImGui::NewFrame();
+            
+            {
+                glm::mat4 model = glm::translate(glm::mat4(1.0f), translationA);
+                glm::mat4 mvp = projection * view * model;
+                shader.Bind();
+                shader.SetUniformMatrix4f("u_MVP", mvp);
+     
+                renderer.Draw(va, ib, shader);
+            }   
 
-            glm::mat4 model = glm::translate(glm::mat4(1.0f), translation);
+            {
+                glm::mat4 model = glm::translate(glm::mat4(1.0f), translationB);
+                glm::mat4 mvp = projection * view * model;
+                shader.Bind();
+                shader.SetUniformMatrix4f("u_MVP", mvp);
 
-            glm::mat4 mvp = projection * view * model;
-
-            shader.Bind();
-            shader.SetUniform4f("u_Color", r, 0.3f, 0.8f, 1.0f);
-            shader.SetUniformMatrix4f("u_MVP", mvp);
-
-            renderer.Draw(va, ib, shader);
-
+                renderer.Draw(va, ib, shader);
+            }
+            
             if (r > 1.0f)
                 increment = -0.05f;
             else if (r < 0.0f)
@@ -120,7 +129,8 @@ int main()
             r += increment;
 
             {
-                ImGui::SliderFloat3("Translation", &translation.x, 0.0f, 1.0f);
+                ImGui::SliderFloat3("Translation A", &translationA.x, 0.0f, 960.0f);
+                ImGui::SliderFloat3("Translation B", &translationB.x, 0.0f, 960.0f);
                 ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
                 //ImGui::End();
             }
