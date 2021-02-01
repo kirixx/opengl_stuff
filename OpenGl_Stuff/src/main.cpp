@@ -80,7 +80,6 @@ int main()
                 ImGui::End();
             }
 
-
             ImGui::Render();
             ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
@@ -90,6 +89,9 @@ int main()
             /* poll for and process events */
             glfwPollEvents();
         }
+        delete currentTest;
+        if(currentTest != testMenu)
+            delete testMenu;
     }
 
     ImGui_ImplOpenGL3_Shutdown();
