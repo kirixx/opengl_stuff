@@ -1,34 +1,32 @@
 #pragma once
-
+#include "ErrorHandler.h"
 #include "Test.h"
 #include "Renderer.h"
 #include "glm/gtc/matrix_transform.hpp"
 #include "Texture.h"
+#include <memory>
+
 namespace test
 {
-	class TestRender : public Test
+	class TestTexture2D : public Test
 	{
     public:
-        TestRender();
-        ~TestRender();
+        TestTexture2D();
+        ~TestTexture2D();
 
         void onUpdate(float deltatime) override;
         void onRender() override;
         void onImGuiRender() override;
     
-    private:
-        float mPositions[4*4];
-        uint32_t mIndices[2*3];
-        VertexArray mVA;
-        IndexBuffer mIB;
-        VertexBuffer mVB;
-        VertexBufferLayout mLayout;
+    private:        
         glm::vec3 mTranslationA;
         glm::vec3 mTranslationB;
         glm::mat4 mProjection;
         glm::mat4 mView;
-        Renderer mRenderer;
-        Shader mShader;
-        Texture mTexture;
+        std::unique_ptr<VertexArray> mVAO;
+        std::unique_ptr<IndexBuffer> mIndexBuffer;
+        std::unique_ptr<VertexBuffer> mVertexBuffer;
+        std::unique_ptr<Shader> mShader;
+        std::unique_ptr<Texture> mTexture;
     };
 }

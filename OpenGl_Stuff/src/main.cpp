@@ -6,11 +6,11 @@
 #include "imgui/imgui_impl_opengl3.h"
 
 #include "Tests/TestClearColor.h"
-#include "Tests/TestRender.h"
+#include "Tests/TestTexture2D.h"
 
 void error_callback(int error, const char* msg);
 
-int main()
+int main(int argc, char* argv[])
 {
     glfwSetErrorCallback(error_callback);
     GLFWwindow* window;
@@ -54,7 +54,7 @@ int main()
         currentTest = testMenu;
 
         testMenu->RegisterTest<test::TestClearColor>("Clear Color");
-        testMenu->RegisterTest<test::TestRender>("Render");
+        testMenu->RegisterTest<test::TestTexture2D>("2D Texture");
 
         /* Loop until the user closes the window */
         while (!glfwWindowShouldClose(window))
@@ -65,7 +65,6 @@ int main()
             ImGui_ImplOpenGL3_NewFrame();
             ImGui_ImplGlfw_NewFrame();
             ImGui::NewFrame();
-            //ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
             if (currentTest)
             {
                 currentTest->onUpdate(0.0f);
