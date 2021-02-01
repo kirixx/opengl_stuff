@@ -49,32 +49,37 @@ int main()
         ImGui_ImplOpenGL3_Init("#version 130");
         ImGui::StyleColorsDark();
 
-        test::TestClearColor clearColorTest;
-        test::TestRender testRender;
-        static int selectedTest = 255;
+        test::Test* currentTest = nullptr;
+        test::TestMenu* testMenu = new test::TestMenu(currentTest);
+        currentTest = testMenu;
+
+        testMenu->RegisterTest<test::TestClearColor>("Clear Color");
+        testMenu->RegisterTest<test::TestRender>("Render");
+
         /* Loop until the user closes the window */
         while (!glfwWindowShouldClose(window))
         {
+            GLCall(glClearColor(0.f, 0.f, 0.f, 1.f));
+            GLCall(glClear(GL_COLOR_BUFFER_BIT));
             /* Render Here*/
-
-            clearColorTest.onUpdate(0.f);
-            clearColorTest.onRender();
-
             ImGui_ImplOpenGL3_NewFrame();
             ImGui_ImplGlfw_NewFrame();
             ImGui::NewFrame();
-            ImGui::Combo(" Test ", &selectedTest, clearColorTest.mTests, IM_ARRAYSIZE(clearColorTest.mTests), 2);
-            ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
-            switch (selectedTest)
+            //ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+            if (currentTest)
             {
-                case 0 :
-                    clearColorTest.onImGuiRender();
-                    break;
-                case 1:
-                    testRender.onImGuiRender();
-                    testRender.onRender();
-                    break;
+                currentTest->onUpdate(0.0f);
+                currentTest->onRender();
+                ImGui::Begin(" Test ");
+                if (currentTest != testMenu && ImGui::Button ("<-"))
+                {
+                    delete currentTest;
+                    currentTest = testMenu;
+                }
+                currentTest->onImGuiRender();
+                ImGui::End();
             }
+
 
             ImGui::Render();
             ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());

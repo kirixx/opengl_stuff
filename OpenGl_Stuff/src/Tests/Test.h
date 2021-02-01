@@ -1,5 +1,8 @@
 #pragma once
-
+#include "ErrorHandler.h"
+#include <string>
+#include <vector>
+#include <functional>
 
 namespace test 
 {
@@ -7,14 +10,31 @@ namespace test
     class Test
     {
     public:
-        Test() : mTests{"ClearColor", "RenderTest"}{}
+        Test(){}
         virtual ~Test(){}
         
         virtual void onUpdate(float deltatime) {}
-        virtual void onRender() { }
+        virtual void onRender() {}
         virtual void onImGuiRender() {}
+    };
 
-        const char* mTests[2];
+    class TestMenu : public Test
+    {
+    public:
+        TestMenu(Test*& currentTest);
+
+        void onImGuiRender() override ;
+
+        template<typename T>
+        void RegisterTest(const std::string& name) 
+        {
+            std::cout << "Registering test " << name << std::endl;
+            mTests.push_back(std::make_pair(name, []() { return  new T(); }));
+        }
+
+    private:
+        Test*& mCurrentTest;
+        std::vector<std::pair<std::string, std::function<Test*()>>> mTests;
     };
 
 }

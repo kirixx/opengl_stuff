@@ -7,7 +7,7 @@ namespace test
     TestClearColor::TestClearColor()
         : mClearColor {0.2f, 0.3f, 0.8f, 1.0f}
     {
-        mTests[0] = "ClearColor";
+
     }
 
     TestClearColor::~TestClearColor()
